@@ -3,16 +3,20 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>學生登入系統</title>
+  <title>資料統計系統</title>
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
     body {
       font-family: sans-serif;
-      padding: 2rem;
       background-image: url('background.jpg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -20,29 +24,36 @@
     .login-box, .form-box {
       background: rgba(255, 255, 255, 0.95);
       padding: 2rem;
-      border-radius: 10px;
+      border-radius: 20px;
       max-width: 400px;
       width: 100%;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      text-align: center;
     }
     label {
       display: block;
       margin-top: 1rem;
     }
-    input, select, button {
-      width: 100%;
+    select,
+    input[type="password"] {
+      width: 80%;
       padding: 0.5rem;
-      margin-top: 0.5rem;
-      border-radius: 5px;
+      margin: 0.5rem auto;
+      display: block;
+      border-radius: 10px;
       border: 1px solid #ccc;
       box-sizing: border-box;
     }
     button {
+      width: 60%;
       background-color: #1976d2;
       color: white;
       border: none;
-      margin-top: 1rem;
+      padding: 0.5rem;
+      margin: 1rem auto 0;
+      border-radius: 10px;
       cursor: pointer;
+      display: block;
     }
     button:hover {
       background-color: #1565c0;
@@ -50,35 +61,119 @@
     .hidden {
       display: none;
     }
+    .error-box {
+      margin-top: 1rem;
+      background: rgba(255, 100, 100, 0.9);
+      padding: 0.75rem 1rem;
+      border-radius: 15px;
+      text-align: center;
+      color: white;
+      animation: fadeSlide 0.3s ease forwards;
+    }
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2ch;
+    }
+    .checkbox-item label {
+      margin: 0;
+      font-size: 1rem;
+    }
+    .checkbox-item input[type="checkbox"] {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #1976d2;
+      border-radius: 4px;
+      background-color: white;
+      display: inline-block;
+      position: relative;
+      cursor: pointer;
+    }
+    .checkbox-item input[type="checkbox"]:checked {
+      background-color: #1976d2;
+    }
+    .success-animation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin-top: 1rem;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    .success-animation img {
+      width: 100px;
+      height: 100px;
+      animation: rotateIn 1.5s ease-in-out;
+    }
+    @keyframes rotateIn {
+      0% { transform: scale(0) rotate(-720deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <div class="login-box" id="loginBox">
-    <h2 style="text-align:center;">仁和國中 管樂團課程回覆</h2>
-    <label for="name">選擇姓名</label>
-    <select id="name">
-      <option value="">請選擇</option>
-      <option value="王邑東">王邑東</option>
-      <option value="王邑西">王邑西</option>
-      <option value="王邑南">王邑南</option>
-      <option value="王邑北">王邑北</option>
-    </select>
-    <label for="password">密碼</label>
-    <input type="password" id="password">
-    <button onclick="login()">登入</button>
-    <p id="error" style="color:red; text-align:center;"></p>
+    <h2 style="text-align:center;">仁和國中管樂團 自主練習調查</h2>
+    <form id="loginForm">
+      <label for="name">選擇姓名</label>
+      <select id="name">
+        <option value="">請選擇</option>
+        <option value="王邑東">王邑東</option>
+        <option value="王邑西">王邑西</option>
+        <option value="王邑南">王邑南</option>
+        <option value="王邑北">王邑北</option>
+      </select>
+      <label for="password">密碼</label>
+      <input type="password" id="password">
+      <button type="submit">登入</button>
+      <div id="errorContainer"></div>
+    </form>
   </div>
 
   <div class="form-box hidden" id="formBox">
-    <h2>請勾選本週要參加的課程</h2>
+    <h2 id="welcomeMessage"></h2>
     <form id="responseForm">
       <input type="hidden" id="studentName" name="姓名">
-      <label><input type="checkbox" name="週二" value="✓"> 週二</label>
-      <label><input type="checkbox" name="週四" value="✓"> 週四</label>
-      <label><input type="checkbox" name="週五" value="✓"> 週五</label>
+      <div class="checkbox-group">
+        <div class="checkbox-item">
+          <label for="tue">週二</label>
+          <input type="checkbox" id="tue" name="週二" value="✓">
+        </div>
+        <div class="checkbox-item">
+          <label for="thu">週四</label>
+          <input type="checkbox" id="thu" name="週四" value="✓">
+        </div>
+        <div class="checkbox-item">
+          <label for="fri">週五</label>
+          <input type="checkbox" id="fri" name="週五" value="✓">
+        </div>
+      </div>
       <button type="submit">送出</button>
     </form>
-    <p id="success" style="color:green"></p>
+    <div id="successAnimation" class="hidden">
+      <div class="success-animation">
+        <img src="success.png" alt="成功圖示">
+        <p style="margin-top: 1rem; font-size: 1.2rem; color: #1976d2;">送出成功！</p>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -89,29 +184,65 @@
       "王邑北": "4234"
     };
 
-    function login() {
-      const name = document.getElementById("name").value;
-      const pw = document.getElementById("password").value;
-      const error = document.getElementById("error");
+    document.getElementById("name").addEventListener("change", function () {
+      const pwInput = document.getElementById("password");
+      if (this.value) {
+      pwInput.focus();
+      }
+    });
+    
 
+    function showError(message) {
+      const container = document.getElementById("errorContainer");
+      container.innerHTML = '';
+      const box = document.createElement("div");
+      box.className = "error-box";
+      box.textContent = message;
+      container.appendChild(box);
+
+      // 清空密碼欄位並重新 focus
+      const pwInput = document.getElementById("password");
+      pwInput.value = "";
+      pwInput.focus();
+
+      // 淡出動畫
+      setTimeout(() => {
+      box.style.transition = "opacity 1s";
+      box.style.opacity = 0;
+      setTimeout(() => box.remove(), 1000);
+      }, 2000);
+    }
+
+    function login(name, pw) {
       if (passwords[name] === pw) {
         document.getElementById("loginBox").classList.add("hidden");
         document.getElementById("formBox").classList.remove("hidden");
         document.getElementById("studentName").value = name;
+        const welcome = document.getElementById("welcomeMessage");
+        welcome.innerHTML = `${name} 你好！<br>請勾選欲自主練習的天數`;
       } else {
-        error.textContent = "姓名或密碼錯誤，請重新輸入";
+        showError("密碼錯誤，請重新輸入");
       }
     }
 
-    // Google Apps Script 的表單提交網址
-    const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const pw = document.getElementById("password").value;
+      login(name, pw);
+    });
 
+    const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
     document.getElementById("responseForm").addEventListener("submit", e => {
       e.preventDefault();
       const form = e.target;
       fetch(scriptURL, { method: 'POST', body: new FormData(form) })
-        .then(response => document.getElementById("success").textContent = "送出成功！")
-        .catch(error => document.getElementById("success").textContent = "送出失敗，請稍後再試。");
+        .then(response => {
+          document.getElementById("responseForm").classList.add("hidden");
+          document.getElementById("welcomeMessage").classList.add("hidden");
+          document.getElementById("successAnimation").classList.remove("hidden");
+        })
+        .catch(error => alert("送出失敗，請稍後再試。"));
     });
   </script>
 </body>
