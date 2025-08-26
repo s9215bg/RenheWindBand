@@ -5,16 +5,56 @@
   <meta charset="UTF-8">
   <title>學生登入系統</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; background: #f4f4f4; }
-    .login-box, .form-box { background: #fff; padding: 2rem; border-radius: 10px; max-width: 400px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    label { display: block; margin-top: 1rem; }
-    input, select, button { width: 100%; padding: 0.5rem; margin-top: 0.5rem; }
-    .hidden { display: none; }
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-image: url('background.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-box, .form-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1565c0;
+    }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="login-box" id="loginBox">
-    <h2>請先登入</h2>
+    <h2 style="text-align:center;">仁和國中 管樂團課程回覆</h2>
     <label for="name">選擇姓名</label>
     <select id="name">
       <option value="">請選擇</option>
@@ -26,11 +66,11 @@
     <label for="password">密碼</label>
     <input type="password" id="password">
     <button onclick="login()">登入</button>
-    <p id="error" style="color:red"></p>
+    <p id="error" style="color:red; text-align:center;"></p>
   </div>
 
   <div class="form-box hidden" id="formBox">
-    <h2>請勾選上課日</h2>
+    <h2>請勾選本週要參加的課程</h2>
     <form id="responseForm">
       <input type="hidden" id="studentName" name="姓名">
       <label><input type="checkbox" name="週二" value="✓"> 週二</label>
@@ -59,19 +99,19 @@
         document.getElementById("formBox").classList.remove("hidden");
         document.getElementById("studentName").value = name;
       } else {
-        error.textContent = "姓名或密碼錯誤";
+        error.textContent = "姓名或密碼錯誤，請重新輸入";
       }
     }
 
-    // Google Apps Script 的表單提交網址（你會填入你自己的）
-    const scriptURL = 'https://script.google.com/macros/s/AKfycby-7tYgeLfWVFYiApupNPHl9jZlwkJzqXqJk9HqJ-LW8b778IvcCWCU3T-8aj0eMe4X/exec';
+    // Google Apps Script 的表單提交網址
+    const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
 
     document.getElementById("responseForm").addEventListener("submit", e => {
       e.preventDefault();
       const form = e.target;
       fetch(scriptURL, { method: 'POST', body: new FormData(form) })
         .then(response => document.getElementById("success").textContent = "送出成功！")
-        .catch(error => document.getElementById("success").textContent = "送出失敗！");
+        .catch(error => document.getElementById("success").textContent = "送出失敗，請稍後再試。");
     });
   </script>
 </body>
