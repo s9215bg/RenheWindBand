@@ -1,249 +1,495 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>資料統計系統</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-    }
-    body {
-      font-family: sans-serif;
-      background-image: url('background.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .login-box, .form-box {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 2rem;
-      border-radius: 20px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-    }
-    select,
-    input[type="password"] {
-      width: 80%;
-      padding: 0.5rem;
-      margin: 0.5rem auto;
-      display: block;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-    button {
-      width: 60%;
-      background-color: #1976d2;
-      color: white;
-      border: none;
-      padding: 0.5rem;
-      margin: 1rem auto 0;
-      border-radius: 10px;
-      cursor: pointer;
-      display: block;
-    }
-    button:hover {
-      background-color: #1565c0;
-    }
-    .hidden {
-      display: none;
-    }
-    .error-box {
-      margin-top: 1rem;
-      background: rgba(255, 100, 100, 0.9);
-      padding: 0.75rem 1rem;
-      border-radius: 15px;
-      text-align: center;
-      color: white;
-      animation: fadeSlide 0.3s ease forwards;
-    }
-    @keyframes fadeSlide {
-      0% { opacity: 0; transform: translateY(-10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    .checkbox-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .checkbox-item {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 2ch;
-    }
-    .checkbox-item label {
-      margin: 0;
-      font-size: 1rem;
-    }
-    .checkbox-item input[type="checkbox"] {
-      appearance: none;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #1976d2;
-      border-radius: 4px;
-      background-color: white;
-      display: inline-block;
-      position: relative;
-      cursor: pointer;
-    }
-    .checkbox-item input[type="checkbox"]:checked {
-      background-color: #1976d2;
-    }
-    .success-animation {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      margin-top: 1rem;
-      animation: fadeIn 0.5s ease forwards;
-    }
-    .success-animation img {
-      width: 100px;
-      height: 100px;
-      animation: rotateIn 1.5s ease-in-out;
-    }
-    @keyframes rotateIn {
-      0% { transform: scale(0) rotate(-720deg); opacity: 0; }
-      100% { transform: scale(1) rotate(0); opacity: 1; }
-    }
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>仁和國中管樂團｜自主練習調查（動畫版）</title>
+<style>
+  :root{
+    --primary:#1976d2; --primary-600:#1565c0; --bg:#eaf0ff;
+    --danger:#e53935; --muted:#6b7280; --radius:18px;
+    --card-minw: 320px;          /* 白框最小寬 */
+    --card-maxw: 760px;          /* 白框最大寬（原本寬）*/
+    --card-pad-x: 20px;          /* 左右 padding，供寬度估算 */
+    --title-safe: 24px;          /* 標題左右安全邊界 */
+    --square-size: 300px;        /* 成功時白框正方形邊長 */
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; overflow:hidden;}
+  body{
+    margin:0; font-family:"Noto Sans TC",system-ui,-apple-system,"Microsoft JhengHei",Arial,sans-serif; color:#1f2937;
+    position:relative;
+  }
+  body::before{
+    content:""; position:fixed; inset:0;
+    background:url('background.jpg') center/cover no-repeat;
+    filter:saturate(0.9) brightness(1.05);
+  }
+  body::after{
+    content:""; position:fixed; inset:0; background:rgba(255,255,255,.65);
+  }
+  .app{ position:relative; z-index:1; min-height:100vh; display:grid; place-items:center; padding:16px; transform: translateY(-2.5vh);}
+  .card{
+    background:#fff; border-radius:var(--radius); box-shadow:0 10px 28px rgba(0,0,0,.12);
+    padding:20px; width:min(var(--card-maxw),92vw);
+    transition: width .35s cubic-bezier(.2,0,0,1), height .45s cubic-bezier(.2,0,0,1);
+    will-change: width, height;
+    overflow:hidden;  /* 讓擦入/淡入不溢出 */
+  }
+  h1{margin:0 0 6px; text-align:center; font-size:clamp(20px,4vw,28px)}
+  .subtitle{text-align:center; color:var(--muted); margin:0 0 8px}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  @media (max-width:520px){.grid-2{grid-template-columns:1fr}}
+  label{font-weight:700; font-size:14px; margin:6px 0; display:block}
+  select,input[type=password]{width:100%; padding:10px 12px; border:1px solid #cfd8e3; border-radius:12px; background:#fff; outline:none}
+  select:focus,input[type=password]:focus{border-color:var(--primary); box-shadow:0 0 0 3px rgba(25,118,210,.15)}
+  .actions{display:flex; justify-content:center; gap:12px; margin-top:12px; flex-wrap:wrap}
+  .btn{appearance:none; border:0; border-radius:12px; padding:10px 16px; cursor:pointer; background:var(--primary); color:#fff; font-weight:700; min-width:120px; transition:.15s}
+  .btn:hover{background:var(--primary-600); transform:translateY(-1px); box-shadow:0 8px 16px rgba(25,118,210,.25)}
+  .btn.secondary{background:#e5e7eb; color:#111827}
+  .hidden{display:none !important}
+  .invisible{visibility:hidden; opacity:0;}
+  .error-box{margin-top:10px; background:var(--danger); color:#fff; padding:10px 12px; border-radius:12px; text-align:center}
+  .banner{display:flex; align-items:center; gap:10px; background:#eef6ff; border:1px dashed #cfe1ff; color:#29539b; border-radius:12px; padding:10px 12px; margin:10px 0}
+
+  .note{font-size:12px; color:#6b7280; text-align:center; margin-top:8px}
+  #prevBox{background:#fff7ed; border:1px solid #fde68a; color:#92400e; border-radius:12px; padding:12px; margin-top:10px}
+  #prevBox .title{font-weight:800; margin-bottom:6px}
+  #prevBox .time{font-size:12px; color:#92400e}
+
+  /* 骨架 */
+  .skeleton{height:140px; border-radius:12px; background:linear-gradient(90deg,#eee,#f7f7f7,#eee); background-size:200% 100%; animation:shimmer 1.2s infinite; margin:8px 0;}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  /* 第二頁：排版與動畫支援 */
+  .fade-in{opacity:0; transform:translateY(-4px); transition:opacity .24s ease, transform .24s ease;}
+  .fade-in.show{opacity:1; transform:none;}
+  .fade-only{opacity:0; transition:opacity .24s ease;}
+  .fade-only.show{opacity:1;}
+
+  /* 標題擦入（由左至右） */
+  .reveal-clip{
+    opacity:0;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path .30s ease, opacity .30s ease;
+  }
+  .reveal-clip.show{
+    opacity:1;
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* 選項區塊外框：寬度縮小、和標題拉開距離 */
+  #choicesWrap {
+    text-align: center;           /* 父層文字置中 */
+  }
+  .checkbox-group{ display:flex; flex-direction:column; gap:10px; align-items:stretch; margin-top:8px }
+  /* 單一選項：文字 + 勾選框置中 */
+  #choicesWrap .checkbox-item {
+    display: inline-flex;
+    justify-content: center;   /* 水平置中 */
+    align-items: center;       /* 垂直置中 */
+    gap: 10px;                 /* 文字和勾選框的距離（可自行調小/大） */
+    padding: 10px 16px;        /* 內距舒適一些 */
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+  }
+  .checkbox-item:hover{ box-shadow:0 6px 14px rgba(0,0,0,.06); transform: translateY(-1px); }
+  .checkbox-item label{ margin:0; font-weight:800; }
+
+  /* 自訂 checkbox：未勾細黑框／勾選藍色實心 */
+  #choicesWrap input[type=checkbox]{
+    appearance:none; -webkit-appearance:none; -moz-appearance:none;
+    width:22px; height:22px; border-radius:6px;
+    border:2px solid #111; background:#fff; cursor:pointer; outline:none;
+    transition:none; /* 避免尺寸/邊框動畫造成「跳動」錯覺 */
+    flex:0 0 22px;
+  }
+  #choicesWrap input[type=checkbox]:checked{
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+  #choicesWrap input[type=checkbox]:focus{
+    box-shadow: 0 0 0 3px rgba(25,118,210,.15);
+  }
+
+  /* 第二頁容器控高（交給 JS 拉伸） */
+  #bodyWrap{ overflow:hidden; height:0 }
+
+  /* 成功區塊 */
+  .success{display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px}
+  .success img{width:110px; height:110px; opacity:0; transition:opacity .5s ease;}
+  .success img.show{opacity:1;}
+
+  /* 登入欄位：置中 + 半寬 + 防跳動 */
+  #loginForm{ display:flex; flex-direction:column; align-items:center; }
+  #loginForm .grid-2{ width:100%; display:flex; justify-content:center; gap:20px; }
+  #loginForm label{ text-align:center; display:block; }
+  #classSelect,#name,#password{ width:50%; min-width:260px; height:44px; line-height:44px; margin:0 auto; box-sizing:border-box; font-weight:400; transition:none; }
+  #loginForm select:disabled{ opacity:1; background:#fff; border-color:#cfd8e3; }
+
+  @media (prefers-reduced-motion: reduce){
+    .card{ transition:none !important; }
+    .fade-in,.fade-only,.reveal-clip{ transition:none !important; }
+  }
+
+  /* 讓文字與勾選靠近 + 縮小每列寬度 */
+  #choicesWrap { 
+    width: min(460px, 92%);   /* 原本 520px，改小讓左右距離自然變近 */
+    margin: 0 auto;
+  }
+  #choicesWrap .checkbox-item{
+    justify-content: flex-start; /* 不要兩端對齊，改成靠近排列 */
+    gap: 100px;                   /* 文字與勾選之間留 12px 間距 */
+  }
+
+  /* 讓按鈕群再往下 */
+  #btnWrap{
+    margin-top: 24px;   /* 想更下就設 28px、32px */
+  }
+  
+</style>
 </head>
 <body>
-  <div class="login-box" id="loginBox">
-    <h2 style="text-align:center;">仁和國中管樂團 自主練習調查</h2>
+<div class="app">
+  <!-- 登入卡 -->
+  <section id="loginCard" class="card">
+    <h1>仁和國中管樂團｜自主練習調查</h1>
+    <p class="subtitle">請先選擇班級與姓名，再輸入密碼登入</p>
+    <div id="testBanner" class="banner">
+      <span>🧪</span><span><strong>測試密碼規則</strong>：目前「嚴格模式」開啟，但先採 <b>非空即可</b>（日後可換成真實比對）。</span>
+    </div>
     <form id="loginForm">
-      <label for="name">選擇姓名</label>
-      <select id="name">
-        <option value="">請選擇</option>
-        <option value="王邑東">王邑東</option>
-        <option value="王邑西">王邑西</option>
-        <option value="王邑南">王邑南</option>
-        <option value="王邑北">王邑北</option>
-      </select>
-      <label for="password">密碼</label>
-      <input type="password" id="password">
-      <button type="submit">登入</button>
-      <div id="errorContainer"></div>
-    </form>
-  </div>
-
-  <div class="form-box hidden" id="formBox">
-    <h2 id="welcomeMessage"></h2>
-    <form id="responseForm">
-      <input type="hidden" id="studentName" name="姓名">
-      <div class="checkbox-group">
-        <div class="checkbox-item">
-          <label for="tue">週二</label>
-          <input type="checkbox" id="tue" name="週二" value="✓">
+      <div class="grid-2">
+        <div>
+          <label for="classSelect">選擇班級</label>
+          <select id="classSelect" required><option value="">請選擇</option></select>
         </div>
-        <div class="checkbox-item">
-          <label for="thu">週四</label>
-          <input type="checkbox" id="thu" name="週四" value="✓">
-        </div>
-        <div class="checkbox-item">
-          <label for="fri">週五</label>
-          <input type="checkbox" id="fri" name="週五" value="✓">
+        <div>
+          <label for="name">選擇姓名</label>
+          <select id="name" required disabled><option value="">請先選班級</option></select>
         </div>
       </div>
-      <button type="submit">送出</button>
+      <div style="margin-top:12px">
+        <label for="password">密碼</label>
+        <input type="password" id="password" placeholder="目前測試：非空即可" required/>
+      </div>
+      <div class="actions">
+        <button class="btn" id="btnLogin" type="submit">登入</button>
+      </div>
+      <div id="loginError"></div>
     </form>
-    <div id="successAnimation" class="hidden">
-      <div class="success-animation">
-        <img src="success.png" alt="成功圖示">
-        <p style="margin-top: 1rem; font-size: 1.2rem; color: #1976d2;">送出成功！</p>
+  </section>
+
+  <!-- 第二頁 -->
+  <section id="formCard" class="card hidden">
+    <div class="form-shell">
+      <h1 id="welcomeMessage" class="reveal-clip">同學你好！請勾選欲自主練習的天數</h1>
+
+      <div id="prevBox" class="hidden">
+        <div class="title" id="prevTitle">已找到你上次送出的紀錄</div>
+        <div class="time" id="lastTime"></div>
+        <div class="actions" style="margin-top:8px">
+          <button id="btnKeep" class="btn secondary" type="button">不修改，返回登入</button>
+          <button id="btnEdit" class="btn" type="button">我要修改後重新送出</button>
+        </div>
+      </div>
+
+      <div id="skeleton" class="skeleton"></div>
+
+      <div id="bodyWrap">
+        <form id="responseForm" class="invisible">
+          <input type="hidden" id="studentClass" name="班級"/>
+          <input type="hidden" id="studentName" name="姓名"/>
+
+          <div class="checkbox-group" id="choicesWrap">
+            <div class="checkbox-item"><label for="tue">週二</label><input type="checkbox" id="tue" name="週二" value="✓"/></div>
+            <div class="checkbox-item"><label for="thu">週四</label><input type="checkbox" id="thu" name="週四" value="✓"/></div>
+            <div class="checkbox-item"><label for="fri">週五</label><input type="checkbox" id="fri" name="週五" value="✓"/></div>
+          </div>
+
+          <div class="actions" id="btnWrap">
+            <button class="btn" id="btnSubmit" type="submit"><span class="btn-text">送出</span></button>
+            <button class="btn secondary" id="btnBack" type="button">返回登入頁面</button>
+          </div>
+        </form>
+
+        <div id="successBox" class="hidden">
+          <div class="success">
+            <div id="successTitle" style="font-weight:800; text-align:center;">送出成功</div>
+            <img id="successImg" src="success.png" alt="成功圖示"/>
+            <div class="actions" style="margin-top:6px">
+              <button class="btn secondary" id="btnReturnAfterSuccess" type="button">返回登入頁面</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    const passwords = {
-      "王邑東": "1234",
-      "王邑西": "2234",
-      "王邑南": "3234",
-      "王邑北": "4234"
-    };
+    <p id="noteText" class="note fade-only">送出後若需修改，可重新登入預填並調整。</p>
+  </section>
+</div>
 
-    document.getElementById("name").addEventListener("change", function () {
-      const pwInput = document.getElementById("password");
-      if (this.value) {
-      pwInput.focus();
-      }
+<script>
+/* ===== 常數設定 ===== */
+const STRICT_LOGIN = true;
+const NONEMPTY_AS_PASS = true;
+const scriptURL = "https://script.google.com/macros/s/AKfycby0ruEwUstZYs8bqtRYOdY6ySi6D26NyBwSRKPOIB2Kq4xXVFdTxHYWqPTG1L0m27-M/exec";
+
+/* 名單 */
+const classData = {
+  "八(22)甲": ["呂苡珈","尤湲琋","黃于家","魏紫希","陳品妍","陳語彤","李嘉茵","林楷御","曾睿德","林可喬","邱荺彤","吳念穎","尤心辰","賴鈺靖","林正一","李恩綺","郭睿杰","林可茗","漢羽婕","江禮臻","李宛霏","林愷特","蘇子瑜","江炘芳","簡裴萱","蔡欣彤","劉子暘"],
+  "八(22)乙": ["簡幼喬","陳靖騏","黃梓鴛","吳聖恩","陳墨","瞿苡安","張予曦","林恩沛","郭奕泓","林詠嫺","曾映達","鄭睿謙","邱廷暟","陳家芊","陳于涵","王子維","李語婕","林易潔","曹妘璟","黃妍之","范歆妮","呂宜蓁","陳偉祥","徐匯喬","黃渤鈞","李淳風","鄭楷叡","范信辰"],
+  "七(23)甲": ["林玫鈺","王劭羽","王品涵","杜婕瑜","蔡沛蓉","陳泫","施潔蔓","李安晴","廖巧希","鄭祖尚","力尹翔","黃易棋","陳湘庭","葉皓宇","林淇萱","趙子頡","王柏升","林子晴"],
+  "七(23)乙": ["藍婕語","王婕芯","林怡辰","邱榆宸","曾宥嘉","李昕妍","邱若庭","陳宥廷","詹洧晴","黃梓緒","吳柏諭","張恩齊","邱苡恩","曾睿昌","葉芸潔","陳楷崴","邱梓晴","曹心瑜","宋瑜瑄"]
+};
+
+/* ===== DOM ===== */
+const $ = id => document.getElementById(id);
+const loginCard=$('loginCard'), formCard=$('formCard');
+const loginForm=$('loginForm'), responseForm=$('responseForm'), successBox=$('successBox');
+const classSel=$('classSelect'), nameSel=$('name'), pw=$('password'), loginError=$('loginError');
+const welcome=$('welcomeMessage'), lastTime=$('lastTime'), prevBox=$('prevBox'), prevTitle=$('prevTitle');
+const bodyWrap=$('bodyWrap'), skeleton=$('skeleton'), choicesWrap=$('choicesWrap'), btnWrap=$('btnWrap');
+const btnKeep=$('btnKeep'), btnEdit=$('btnEdit'), btnBack=$('btnBack'), btnReturnAfterSuccess=$('btnReturnAfterSuccess');
+const noteText=$('noteText'), successImg=$('successImg');
+
+/* ===== 小工具：量測標題寬、動畫串接 ===== */
+function measureTitleWidth(text){
+  // 建立一次性量測元素
+  const probe = document.createElement('span');
+  probe.style.cssText = `
+    position: absolute; visibility: hidden; white-space: nowrap;
+    font-family: inherit; font-size: clamp(20px,4vw,28px); font-weight: 700;
+    left:-9999px; top:-9999px;
+  `;
+  probe.textContent = text;
+  document.body.appendChild(probe);
+  const w = probe.getBoundingClientRect().width;
+  document.body.removeChild(probe);
+  return w;
+}
+function nextFrame(){ return new Promise(r=>requestAnimationFrame(()=>r())); }
+function onTransitionEnd(el, prop){
+  return new Promise(resolve=>{
+    const handler = e => { if(!prop || e.propertyName===prop){ el.removeEventListener('transitionend', handler); resolve(); } };
+    el.addEventListener('transitionend', handler);
+  });
+}
+
+/* ===== 高度拉伸動畫（沿用，但回傳 Promise） ===== */
+function animateHeightToContent(el){
+  return new Promise(resolve=>{
+    const startH = el.getBoundingClientRect().height;
+    el.style.height = 'auto';
+    const targetH = el.getBoundingClientRect().height;
+    el.style.height = startH + 'px';
+    requestAnimationFrame(()=>{
+      el.style.transition = 'height .45s cubic-bezier(.2,0,0,1)';
+      el.style.height = targetH + 'px';
+      const onEnd = (ev)=>{
+        if(ev.propertyName==='height'){
+          el.style.transition = '';
+          el.style.height = 'auto';
+          el.removeEventListener('transitionend', onEnd);
+          resolve();
+        }
+      };
+      el.addEventListener('transitionend', onEnd);
     });
-    
+  });
+}
 
-    function showError(message) {
-      const container = document.getElementById("errorContainer");
-      container.innerHTML = '';
-      const box = document.createElement("div");
-      box.className = "error-box";
-      box.textContent = message;
-      container.appendChild(box);
+function showError(msg){
+  loginError.innerHTML = '<div class="error-box">'+msg+'</div>';
+}
 
-      // 清空密碼欄位並重新 focus
-      const pwInput = document.getElementById("password");
-      pwInput.value = "";
-      pwInput.focus();
+/* ===== 初始化班級下拉 ===== */
+(function initClasses(){
+  Object.keys(classData).sort().forEach(c=>{
+    const opt=document.createElement('option'); opt.value=c; opt.textContent=c; classSel.appendChild(opt);
+  });
+})();
 
-      // 淡出動畫
-      setTimeout(() => {
-      box.style.transition = "opacity 1s";
-      box.style.opacity = 0;
-      setTimeout(() => box.remove(), 1000);
-      }, 2000);
+classSel.addEventListener('change', ()=>{
+  const cls=classSel.value;
+  nameSel.innerHTML='<option value="">請選擇</option>';
+  nameSel.disabled=!cls;
+  if(!cls) return;
+  (classData[cls]||[]).forEach(n=>{
+    const opt=document.createElement('option'); opt.value=n; opt.textContent=n; nameSel.appendChild(opt);
+  });
+  pw.value=''; loginError.innerHTML='';
+});
+
+function authenticate(cls, name, pass){
+  if(!cls || !name || !pass) return false;
+  if(!STRICT_LOGIN) return true;
+  if(NONEMPTY_AS_PASS) return pass.trim().length>0;
+  return false;
+}
+
+/* ===== 返回登入並清空 ===== */
+function returnToLoginClear(){
+  classSel.value = "";
+  nameSel.innerHTML = '<option value="">請先選班級</option>';
+  nameSel.disabled = true;
+  pw.value = "";
+  loginError.innerHTML = "";
+  ['tue','thu','fri'].forEach(id=>$(id).checked=false);
+  $('studentClass').value=""; $('studentName').value="";
+  prevBox.classList.add('hidden');
+  lastTime.textContent = "";
+  responseForm.classList.add('invisible');
+  successBox.classList.add('hidden');
+  welcome.classList.remove('hidden'); welcome.classList.remove('show');
+  noteText.classList.remove('hidden'); noteText.classList.remove('show');
+  skeleton.classList.add('hidden');
+  bodyWrap.style.height='0px';
+  formCard.classList.add('hidden');
+  loginCard.classList.remove('hidden');
+  // 還原白框尺寸
+  formCard.style.width = '';
+  formCard.style.height = '';
+}
+
+/* ===== 進入填寫卡並載入資料（含動畫流程） ===== */
+async function proceed(cls, name){
+  // 切頁
+  loginCard.classList.add('hidden');
+  formCard.classList.remove('hidden');
+
+  // 階段 A-1：白框收窄到可容納標題
+  const titleText = `${name} 同學你好！請勾選欲自主練習的天數`;
+  const titleWidth = measureTitleWidth(titleText) + (parseInt(getComputedStyle(formCard).paddingLeft)||20) + (parseInt(getComputedStyle(formCard).paddingRight)||20) + (2*parseInt(getComputedStyle(formCard).borderLeftWidth||0)) + 2*parseInt(getComputedStyle(document.documentElement).getPropertyValue('--title-safe')||24);
+  const targetW = Math.max(Math.min(titleWidth, parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-maxw')||760)), parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-minw')||320));
+  welcome.textContent = titleText;
+  welcome.classList.remove('show');           // clip 狀態初始
+  formCard.style.width = formCard.getBoundingClientRect().width + 'px'; // 鎖當前寬
+  await nextFrame();
+  formCard.style.width = targetW + 'px';      // 收窄
+  await onTransitionEnd(formCard, 'width');
+
+  // 階段 A-2：標題擦入
+  welcome.classList.add('show');
+
+  // 骨架開啟 + 預設狀態
+  skeleton.classList.remove('hidden');
+  bodyWrap.style.overflow='hidden';
+  bodyWrap.style.height = skeleton.offsetHeight + 'px';
+  ['tue','thu','fri'].forEach(id=>$(id).checked=false);
+  $('studentClass').value=cls; $('studentName').value=name;
+  prevBox.classList.add('hidden');
+  responseForm.classList.add('invisible');
+  successBox.classList.add('hidden');
+  noteText.classList.remove('hidden'); noteText.classList.remove('show');
+
+  // 查詢歷史
+  let hasPrev=false;
+  try{
+    const url = scriptURL + '?class=' + encodeURIComponent(cls) + '&name=' + encodeURIComponent(name);
+    const res = await fetch(url, {method:'GET'});
+    const data = await res.json();
+    if(data && data.ok && data.data){
+      const rec = data.data;
+      const tue = rec['週二']==='✓', thu = rec['週四']==='✓', fri = rec['週五']==='✓';
+      $('tue').checked = tue; $('thu').checked = thu; $('fri').checked = fri;
+      const days = []; if(tue) days.push('週二'); if(thu) days.push('週四'); if(fri) days.push('週五');
+      const summary = days.length ? '登記結果為' + days.join('、') : '上次未勾選任何一天';
+      prevTitle.textContent = '已找到你上次送出的紀錄，' + summary;
+      lastTime.textContent = rec.timestamp ? ('上次填寫時間：' + rec.timestamp) : '';
+      prevBox.classList.remove('hidden');
+      hasPrev = true;
     }
+  }catch(e){ console.warn('prefill failed', e); }
 
-    function login(name, pw) {
-      if (passwords[name] === pw) {
-        document.getElementById("loginBox").classList.add("hidden");
-        document.getElementById("formBox").classList.remove("hidden");
-        document.getElementById("studentName").value = name;
-        const welcome = document.getElementById("welcomeMessage");
-        welcome.innerHTML = `${name} 你好！<br>請勾選欲自主練習的天數`;
-      } else {
-        showError("密碼錯誤，請重新輸入");
-      }
-    }
+  // 階段 B：白框展開到內容高度，並階梯淡入
+  skeleton.classList.add('hidden');
+  if(!hasPrev){
+    responseForm.classList.remove('invisible');
+    choicesWrap.classList.remove('show'); btnWrap.classList.remove('show');
+  }
+  await animateHeightToContent(bodyWrap);
 
-    document.getElementById("loginForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = document.getElementById("name").value;
-      const pw = document.getElementById("password").value;
-      login(name, pw);
-    });
+  // 淡入顯示（含小字）
+  const items = Array.from(document.querySelectorAll('#choicesWrap .checkbox-item'));
+  // 階梯動畫
+  for(let i=0;i<items.length;i++){
+    items[i].style.opacity=0; items[i].style.transform='translateY(-4px)';
+    setTimeout(()=>{
+      items[i].style.transition='opacity .24s ease, transform .24s ease';
+      items[i].style.opacity=1; items[i].style.transform='none';
+    }, 60*i);
+  }
+  btnWrap.classList.add('show');
+  await nextFrame();
+  noteText.classList.add('show');
+}
 
-    const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
-    document.getElementById("responseForm").addEventListener("submit", e => {
-      e.preventDefault();
-      const form = e.target;
-      fetch(scriptURL, { method: 'POST', body: new FormData(form) })
-        .then(response => {
-          document.getElementById("responseForm").classList.add("hidden");
-          document.getElementById("welcomeMessage").classList.add("hidden");
-          document.getElementById("successAnimation").classList.remove("hidden");
-        })
-        .catch(error => alert("送出失敗，請稍後再試。"));
-    });
-  </script>
+/* ===== 事件綁定 ===== */
+loginForm.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const cls=classSel.value, name=nameSel.value, pass=pw.value;
+  if(!authenticate(cls, name, pass)){
+    showError('請確認班級、姓名，並輸入正確密碼（目前非空即可）');
+    return;
+  }
+  proceed(cls, name);
+});
+
+// 不修改 → 返回登入
+btnKeep.addEventListener('click', returnToLoginClear);
+// 我要修改 → 顯示表單並拉伸
+btnEdit.addEventListener('click', async ()=>{
+  prevBox.classList.add('hidden');
+  responseForm.classList.remove('invisible');
+  await animateHeightToContent(bodyWrap);
+});
+
+btnBack.addEventListener('click', returnToLoginClear);
+btnReturnAfterSuccess.addEventListener('click', returnToLoginClear);
+
+/* ===== 送出 ===== */
+responseForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+
+  // 至少勾一個
+  const t=$('tue').checked, h=$('thu').checked, f=$('fri').checked;
+  if(!t && !h && !f){ alert('請至少勾選一天（週二／週四／週五）'); return; }
+
+  const btn = document.getElementById('btnSubmit'); const txt = btn.querySelector('.btn-text');
+  const old = txt.textContent; btn.disabled=true; txt.textContent='送出中…';
+  try{
+    const fd = new FormData(responseForm);
+    const res = await fetch(scriptURL, { method:'POST', body: fd });
+    if(!res.ok) throw new Error('network');
+
+    // 切換到成功畫面
+    $('welcomeMessage').classList.remove('show'); // 隱藏標題擦入
+    noteText.classList.remove('show');
+    prevBox.classList.add('hidden');
+    responseForm.classList.add('invisible');
+    successBox.classList.remove('hidden');
+
+    // 白框縮成正方形
+    // 先鎖定目前高度，避免直接跳變
+    const nowW = formCard.getBoundingClientRect().width;
+    const nowH = formCard.getBoundingClientRect().height;
+    formCard.style.width = nowW + 'px';
+    formCard.style.height = nowH + 'px';
+    await nextFrame();
+    formCard.style.width = getComputedStyle(document.documentElement).getPropertyValue('--square-size').trim();
+    formCard.style.height = getComputedStyle(document.documentElement).getPropertyValue('--square-size').trim();
+
+    // 成功圖示淡入
+    successImg.classList.remove('show');
+    requestAnimationFrame(()=>successImg.classList.add('show'));
+  }catch(err){
+    alert('送出失敗，請稍後再試');
+  }finally{
+    btn.disabled=false; txt.textContent=old;
+  }
+});
+</script>
 </body>
 </html>
