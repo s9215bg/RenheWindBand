@@ -15,11 +15,13 @@
   }
 
   *{box-sizing:border-box}
-  html,body{height:100%;}
-  body{overflow:auto;}
+  html,body{height:100%; overflow-x:hidden; overflow-y:auto;}
+html{scrollbar-gutter: stable both-edges;}
   body{
     margin:0; font-family:"Noto Sans TC",system-ui,-apple-system,"Microsoft JhengHei",Arial,sans-serif; color:#1f2937;
     position:relative;
+    min-height:100dvh; /* iOS 修正 */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   body::before{
     content:""; position:fixed; inset:0;
@@ -28,25 +30,23 @@
   }
   body::after{ content:""; position:fixed; inset:0; background:rgba(255,255,255,.65); }
 
-  .app{ position:relative; z-index:1; min-height:100svh; display:grid; place-items:center; padding:16px; transform:translateY(-2.5vh); transition:transform .45s cubic-bezier(.2,0,0,1); }
-
-  /* 在手機/平板關閉向上位移，確保白框置中 */
-  @media (max-width:768px){
-    .app{ transform:none; }
-  }
+  .app{ position:relative; z-index:1; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px; padding-inline:clamp(12px,4vw,28px); }
 
   .card{
     background:#fff; border-radius:var(--radius); box-shadow:0 10px 28px rgba(0,0,0,.12);
-    padding:20px; width:clamp(var(--card-minw), 92vw, var(--card-maxw));
+    padding:20px; width:100%; max-width:var(--card-maxw); margin-inline:auto;
     transition: width .45s cubic-bezier(.2,0,0,1), height .45s cubic-bezier(.2,0,0,1), border-radius .45s cubic-bezier(.2,0,0,1), box-shadow .3s ease;
-    will-change:width,height,border-radius; overflow:hidden; max-width:100%;
+    will-change:width,height,border-radius;
+    max-height: calc(100dvh - 32px); /* 最高不超過視窗 */
+    overflow: auto;                  /* 超出時在白框內捲動 */
+    scrollbar-gutter: stable both-edges; /* 避免垂直卷軸出現時內文偏移，造成視覺不平衡 */
   }
 
   /* ===== 標題 / 副標題 ===== */
   h1{margin:0 0 6px; text-align:center; font-size:clamp(20px,4vw,28px)}
-  .subtitle{ text-align:center; color:var(--muted); margin:0 0 14px } /* 增加與下方距離 */
+  .subtitle{ text-align:center; color:var(--muted); margin:0 0 14px }
 
-  /* ===== 登入表單（桌面一半寬，置中；手機滿版） ===== */
+  /* ===== 登入表單 ===== */
   #loginForm{ display:flex; flex-direction:column; align-items:center; }
   #loginForm .grid-2{ width:100%; display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
   #loginForm label{ text-align:center; font-weight:700; font-size:14px; display:block; margin:6px 0; }
@@ -68,13 +68,11 @@
   .hidden{display:none !important}
   .invisible{visibility:hidden; opacity:0;}
   .fade-out{opacity:0 !important; transition:opacity .25s ease;}
-  .error-box{margin-top:10px; background:var(--danger); color:#fff; padding:10px 12px; border-radius:12px; text-align:center; opacity:1; transition:opacity .45s ease; /* 新增：淡出的動畫時間（可調） */}
-  /* 觸發淡出時會套這個 class */
+  .error-box{margin-top:10px; background:var(--danger); color:#fff; padding:10px 12px; border-radius:12px; text-align:center; opacity:1; transition:opacity .45s ease;}
   .error-box.fade-out{opacity:.3; }
   .banner{display:flex; align-items:center; gap:10px; background:#eef6ff; border:1px dashed #cfe1ff; color:#29539b; border-radius:12px; padding:10px 12px; margin:10px 0}
-  .note{font-size:12px; color:#6b7280; text-align:center; margin-top:10px} /* 與表單拉開距離 */
+  .note{font-size:12px; color:#6b7280; text-align:center; margin-top:10px}
 
-  /* ===== 第二頁：內容區 ===== */
   #prevBox{background:#fff7ed; border:1px solid #fde68a; color:#92400e; border-radius:12px; padding:12px; margin-top:10px}
   #prevBox .title{font-weight:800; margin-bottom:6px}
   #prevBox .time{font-size:12px; color:#92400e}
@@ -86,23 +84,22 @@
   .fade-in.show{opacity:1; transform:none;}
   .fade-only{opacity:0; transition:opacity .24s ease;}
   .fade-only.show{opacity:1;}
-  .reveal-clip{opacity:0; clip-path:inset(0 100% 0 0); transition:clip-path var(--reveal-clip) ease, opacity var(--reveal-opacity) ease;} /* 可調速 */
+  .reveal-clip{opacity:0; clip-path:inset(0 100% 0 0); transition:clip-path var(--reveal-clip) ease, opacity var(--reveal-opacity) ease;}
   .reveal-clip.show{opacity:1; clip-path:inset(0 0 0 0);}
 
   #bodyWrap{ overflow:hidden; height:0 }
 
-  /* ===== 勾選區：置中、縮短列寬、與標題拉開距離 ===== */
-  #choicesWrap{ text-align:center; margin:36px auto 0; } /* 往下拉開距離 */
+  /* 勾選區：置中、縮短列寬 */
+  #choicesWrap{ text-align:center; margin:36px auto 0; }
   #choicesWrap .checkbox-group{ display:flex; flex-direction:column; gap:10px; align-items:center; }
   #choicesWrap .checkbox-item{
     display:inline-flex; justify-content:center; align-items:center; gap:10px;
     padding:10px 14px; border:1px solid #e5e7eb; border-radius:12px; background:#fff;
     margin:10px auto; min-height:48px;
-    min-width:180px; max-width:220px; /* 變短、視覺集中 */
+    min-width:180px; max-width:220px;
   }
   #choicesWrap .checkbox-item label{ font-weight:700; }
 
-  /* 勾選框：未勾黑框；勾選藍色實心 */
   #choicesWrap input[type=checkbox]{
     appearance:none; -webkit-appearance:none; -moz-appearance:none;
     width:20px; height:20px; border-radius:6px; border:2px solid #111; background:#fff; cursor:pointer; outline:none; transition:none; flex:0 0 20px;
@@ -110,12 +107,8 @@
   #choicesWrap input[type=checkbox]:checked{ background:var(--primary); border-color:var(--primary); }
   #choicesWrap input[type=checkbox]:focus{ box-shadow:0 0 0 3px rgba(25,118,210,.15); }
 
-  /* 讓 B 頁內容若橫向過寬可左右滑動（不影響 A 頁）*/
-  .form-shell{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-
-  /* ===== 全畫面成功畫面 ===== */
   #fullDone{
-    position:fixed; inset:0; display:none; overflow:auto;
+    position:fixed; inset:0; display:none;
     align-items:center; justify-content:center; flex-direction:column; gap:10px;
     background:#fff; z-index:10;
   }
@@ -124,33 +117,21 @@
   #fullDone img{ width:120px; height:120px;  border-radius:16px; opacity:0; transition:opacity .5s ease; }
   #fullDone img.show{ opacity:1; }
 
-  /* 送出動畫時，讓 app 位移歸零，避免邊界露出 */
   .fullscreen-mode .app{ transform:none; }
 
-  /* ===== 手機版 RWD（<=480px） ===== */
   @media (max-width:480px){
     h1{ font-size:20px; }
-    .card{ width:95vw; padding:16px; }
-
-    /* 登入表單：滿版、好點擊 */
+    .card{ width:100%; padding:16px; }
     #classSelect,#name,#password{ width:100%; min-width:unset; }
     #btnWrap .btn{ width:100%; min-width:unset; }
-
-    /* 勾選列：保持置中，不再左右拉開，避免看起來不對齊 */
     #choicesWrap{ margin-top:28px; }
-    #choicesWrap .checkbox-item{
-      width:min(86vw,320px);
-      min-width:unset; max-width:unset;
-      justify-content:center; /* 手機也置中 */
-    }
+    #choicesWrap .checkbox-item{ width:min(86vw,320px); min-width:unset; max-width:unset; justify-content:center; }
   }
 
-  /* 降低動畫偏好 */
   @media (prefers-reduced-motion:reduce){
     .card,.fade-in,.fade-only,.reveal-clip{ transition:none !important; }
   }
 
-  /* 全局吐司訊息，不佔排版空間 */
   #toast{
     position: fixed;
     left: 50%;
@@ -163,19 +144,14 @@
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0,0,0,.2);
     opacity: 0;
-    pointer-events: none;        /* 不阻擋點擊 */
+    pointer-events: none;
     transition: opacity .35s ease, transform .35s ease;
     font-size: 14px;
     text-align: center;
     max-width: min(90vw, 420px);
     white-space: nowrap;
   }
-  #toast.show{
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-
+  #toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -186,7 +162,6 @@
       <h1>仁和國中管樂團｜114上自主練習調查</h1>
       <p class="subtitle">請先選擇班級與姓名，再輸入密碼登入</p>
 
-      
       <div id="testBanner" class="banner">
         <span>🔐</span><span><strong>提醒</strong>：系統架構尚未完善，每一筆填寫都有時間戳記紀錄，<b>切勿填寫他人資料</b> </span>
       </div>
@@ -265,11 +240,11 @@
 <script>
 /* ===== 常數設定 ===== */
 const STRICT_LOGIN = true;
-const NONEMPTY_AS_PASS = false; // 嚴格模式：一定走 GAS 驗證
+const NONEMPTY_AS_PASS = false;
 const scriptURL = "https://script.google.com/macros/s/AKfycbwDVnGiRjbuMostKVnov3HLlO6p_c10De1aDbTo7tTLNd-E_knLpI8yGkaIennD1rzv/exec";
 let ERR_TIMER = null;
 
-/* 名單（暫留本地；若要改成 GAS 動態名單，我再幫你接 API） */
+/* 名單 */
 const classData = {
   "八甲": ["呂苡珈","尤湲琋","黃于家","魏紫希","陳品妍","陳語彤","李嘉茵","林楷御","曾睿德","林可喬","邱荺彤","吳念穎","尤心辰","賴鈺靖","林正一","李恩綺","郭睿杰","林可茗","漢羽婕","江禮臻","李宛霏","林愷特","蘇子瑜","江炘芳","簡裴萱","蔡欣彤","劉子暘"],
   "八乙": ["簡幼喬","陳靖騏","黃梓鴛","吳聖恩","陳墨","瞿苡安","張予曦","林恩沛","郭奕泓","林詠嫺","曾映達","鄭睿謙","邱廷暟","陳家芊","陳于涵","王子維","李語婕","林易潔","曹妘璟","黃妍之","范歆妮","呂宜蓁","陳偉祥","徐匯喬","黃渤鈞","李淳風","鄭楷叡","范信辰"],
@@ -290,7 +265,7 @@ const btnLogin=$('btnLogin'), btnSubmit=$('btnSubmit');
 const noteText=$('noteText');
 const fullDone=$('fullDone'), fullDoneImg=$('fullDoneImg');
 
-/* ===== 小工具：量測標題寬、動畫串接 ===== */
+/* ===== 小工具 ===== */
 function measureTitleWidth(text){
   const probe = document.createElement('span');
   probe.style.cssText = `position:absolute;visibility:hidden;white-space:nowrap;
@@ -302,20 +277,29 @@ function measureTitleWidth(text){
   return w;
 }
 function nextFrame(){ return new Promise(r=>requestAnimationFrame(()=>r())); }
-function onTransitionEnd(el, prop){
+function onTransitionEnd(el, prop, timeoutMs=1200){
   return new Promise(resolve=>{
-    const handler = e => { if(!prop || e.propertyName===prop){ el.removeEventListener('transitionend', handler); resolve(); } };
+    let ended=false;
+    const timer=setTimeout(()=>{ if(!ended){ ended=true; resolve(); } }, timeoutMs);
+    const handler = e => {
+      if(!prop || e.propertyName===prop){
+        if(!ended){ ended=true; clearTimeout(timer); }
+        el.removeEventListener('transitionend', handler);
+        resolve();
+      }
+    };
     el.addEventListener('transitionend', handler);
   });
 }
 
-/* ===== 高度拉伸動畫（回傳 Promise） ===== */
+/* ===== 高度拉伸動畫（加上無變化守門 / 安全超時） ===== */
 function animateHeightToContent(el){
   return new Promise(resolve=>{
     const startH = el.getBoundingClientRect().height;
     el.style.height = 'auto';
     const targetH = el.getBoundingClientRect().height;
     el.style.height = startH + 'px';
+    if (Math.abs(targetH - startH) < 1){ el.style.height='auto'; el.style.transition=''; return resolve(); }
     requestAnimationFrame(()=>{
       el.style.transition = 'height .45s cubic-bezier(.2,0,0,1)';
       el.style.height = targetH + 'px';
@@ -328,31 +312,24 @@ function animateHeightToContent(el){
         }
       };
       el.addEventListener('transitionend', onEnd);
+      setTimeout(()=>{ try{ el.removeEventListener('transitionend', onEnd);}catch(e){} el.style.transition=''; el.style.height='auto'; resolve(); }, 1200);
     });
   });
 }
 
 function showError(msg){
-  // 清掉前一次排程
   if (ERR_TIMER){ clearTimeout(ERR_TIMER); ERR_TIMER = null; }
-
-  // 顯示 toast
   const toast = document.getElementById('toast');
-  if (!toast) return; // 保護：沒加容器就直接離開
+  if (!toast) return;
   toast.textContent = msg;
   toast.classList.add('show');
-
-  // 2 秒後開始淡出；動畫 .35s 結束後關閉
   ERR_TIMER = setTimeout(()=>{
     toast.classList.remove('show');
-    // 等 CSS transition 結束再清掉文字（避免閃爍）
     const onEnd = ()=>{ toast.textContent = ''; toast.removeEventListener('transitionend', onEnd); };
     toast.addEventListener('transitionend', onEnd);
     ERR_TIMER = null;
   }, 2000);
 }
-
-
 
 /* ===== 初始化班級下拉 ===== */
 (function initClasses(){
@@ -396,11 +373,9 @@ async function authenticateRemote(cls, name, pass){
 
 /* ===== 返回登入並清空 ===== */
 function resetToLogin(){
-  // 復原全螢幕狀態
   root.classList.remove('fullscreen-mode');
   fullDone.classList.remove('show');
   fullDoneImg.classList.remove('show');
-  // 清除卡片因滿版設定過的內聯樣式
   formCard.style.position = '';
   formCard.style.left = '';
   formCard.style.top = '';
@@ -410,13 +385,10 @@ function resetToLogin(){
   formCard.style.borderRadius = '';
   formCard.style.boxShadow = '';
   formCard.style.transition = '';
-  // 內容復原
   document.querySelector('.form-shell')?.classList.remove('fade-out');
   noteText.classList.remove('fade-out');
-  // 切頁
   formCard.classList.add('hidden');
   loginCard.classList.remove('hidden');
-  // 清表單
   classSel.value = "";
   nameSel.innerHTML = '<option value="">請先選班級</option>';
   nameSel.disabled = true;
@@ -427,43 +399,44 @@ function resetToLogin(){
   prevBox.classList.add('hidden');
   lastTime.textContent = "";
   document.getElementById('responseForm').classList.add('invisible');
-  // 登入按鈕恢復可點與文字
   const btnTextEl = btnLogin.querySelector('.btn-text') || btnLogin;
   btnLogin.disabled = false;
   btnTextEl.textContent = '登入';
 }
 
-/* ===== 進入填寫卡並載入資料（含動畫流程） ===== */
+/* ===== 進入填寫卡（修正：若寬度不變就不等待 transitionend） ===== */
 async function proceed(cls, name){
-  // 切頁
   loginCard.classList.add('hidden');
   formCard.classList.remove('hidden');
 
-  // 階段 A-1：白框收窄到可容納標題
   const titleText = `${name} 同學你好！請勾選欲自主練習的天數`;
-  const titleWidth = measureTitleWidth(titleText) + (parseInt(getComputedStyle(formCard).paddingLeft)||20) + (parseInt(getComputedStyle(formCard).paddingRight)||20) + (2*parseInt(getComputedStyle(formCard).borderLeftWidth||0)) + 48;
-  const targetW = Math.max(Math.min(titleWidth, parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-maxw')||760)), parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-minw')||320));
+  const cs = getComputedStyle(formCard);
+  const titleWidth = measureTitleWidth(titleText) + (parseInt(cs.paddingLeft)||20) + (parseInt(cs.paddingRight)||20) + (2*parseInt(cs.borderLeftWidth||0)) + 48;
+  const maxw = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-maxw')||760);
+  const minw = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-minw')||320);
+  const targetW = Math.max(Math.min(titleWidth, maxw), minw);
   welcome.textContent = titleText;
   welcome.classList.remove('show');
-  formCard.style.width = formCard.getBoundingClientRect().width + 'px'; // 鎖當前寬
-  await nextFrame();
-  formCard.style.width = targetW + 'px';      // 收窄
-  await onTransitionEnd(formCard, 'width');
 
-  // 階段 A-2：標題擦入（速度由 --reveal-clip / --reveal-opacity 控制）
+  const currentW = formCard.getBoundingClientRect().width;
+  formCard.style.width = currentW + 'px';
+  await nextFrame();
+  formCard.style.width = targetW + 'px';
+  if (Math.abs(targetW - currentW) >= 1) {
+    await onTransitionEnd(formCard, 'width', 1200);
+  }
+
   document.getElementById('welcomeMessage').classList.add('show');
 
-  // 骨架開啟 + 預設狀態
   skeleton.classList.remove('hidden');
-  document.getElementById('bodyWrap').style.overflow='hidden';
-  document.getElementById('bodyWrap').style.height = skeleton.offsetHeight + 'px';
+  bodyWrap.style.overflow='hidden';
+  bodyWrap.style.height = skeleton.offsetHeight + 'px';
   ['tue','thu','fri'].forEach(id=>$(id).checked=false);
   $('studentClass').value=cls; $('studentName').value=name;
   prevBox.classList.add('hidden');
-  document.getElementById('responseForm').classList.add('invisible');
+  responseForm.classList.add('invisible');
   fullDone.classList.remove('show'); fullDoneImg.classList.remove('show');
 
-  // 查詢歷史（改用 action=prefill）
   let hasPrev=false;
   try{
     const url = scriptURL + '?action=prefill&class=' + encodeURIComponent(cls) + '&name=' + encodeURIComponent(name);
@@ -484,15 +457,12 @@ async function proceed(cls, name){
     }
   }catch(e){ console.warn('prefill failed', e); }
 
-  // 階段 B：白框展開到內容高度，並階梯淡入
   skeleton.classList.add('hidden');
   if(!hasPrev){
-    document.getElementById('responseForm').classList.remove('invisible');
-    choicesWrap.classList.remove('show'); btnWrap.classList.remove('show');
+    responseForm.classList.remove('invisible');
   }
-  await animateHeightToContent(document.getElementById('bodyWrap'));
+  await animateHeightToContent(bodyWrap);
 
-  // 淡入顯示（含小字）
   const items = Array.from(document.querySelectorAll('#choicesWrap .checkbox-item'));
   for(let i=0;i<items.length;i++){
     items[i].style.opacity=0; items[i].style.transform='translateY(-4px)';
@@ -503,7 +473,7 @@ async function proceed(cls, name){
   }
   btnWrap.classList.add('show');
   await nextFrame();
-  document.getElementById('noteText').classList.add('show');
+  noteText.classList.add('show');
 }
 
 /* ===== 事件綁定 ===== */
@@ -514,13 +484,11 @@ loginForm.addEventListener('submit', async (e)=>{
   if(!student){ showError('請先選擇「姓名」'); return; }
   if(!pass){ showError('請輸入密碼'); return; }
 
-  // 1) 按下登入 → 按鈕變淡 & 禁用
   const loginTextEl = btnLogin.querySelector('.btn-text') || btnLogin;
   const loginTextOld = loginTextEl.textContent;
   btnLogin.disabled = true;
   loginTextEl.textContent = '登入中…';
 
-  // 2) 驗證
   let allow = false, errMsg = '';
   if(!STRICT_LOGIN){
     allow = true;
@@ -532,11 +500,9 @@ loginForm.addEventListener('submit', async (e)=>{
     errMsg = (auth && auth.message) ? auth.message : '帳號或密碼錯誤，或尚未啟用。';
   }
 
-  // 3) 結果
   if(allow){
     loginError.innerHTML='';
     await proceed(cls, student);
-    // 成功時不需立刻解鎖按鈕（避免連點重送）
   }else{
     showError(errMsg);
     btnLogin.disabled = false;
@@ -544,26 +510,20 @@ loginForm.addEventListener('submit', async (e)=>{
   }
 });
 
-// Enter 於密碼欄可直接送出
 pw.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); loginForm.requestSubmit(); } });
 
-// 不修改 → 返回登入
 btnKeep.addEventListener('click', resetToLogin);
-// 我要修改 → 顯示表單並拉伸
 btnEdit.addEventListener('click', async ()=>{
   prevBox.classList.add('hidden');
-  document.getElementById('responseForm').classList.remove('invisible');
-  await animateHeightToContent(document.getElementById('bodyWrap'));
+  responseForm.classList.remove('invisible');
+  await animateHeightToContent(bodyWrap);
 });
 btnBack.addEventListener('click', resetToLogin);
 document.getElementById('btnReturnAfterSuccess').addEventListener('click', resetToLogin);
 
-// 讓卡片用 FLIP 方式平滑擴張成全螢幕
+/* ===== 滿版成功動畫 ===== */
 async function expandCardToFullscreen(card){
-  // 記錄目前位置/尺寸
   const rect = card.getBoundingClientRect();
-
-  // 固定卡片到視窗座標，避免跳動
   card.style.position = 'fixed';
   card.style.left = rect.left + 'px';
   card.style.top = rect.top + 'px';
@@ -572,7 +532,6 @@ async function expandCardToFullscreen(card){
   card.style.margin = '0';
   await nextFrame();
 
-  // 補間到滿版
   const trans = 'left .50s cubic-bezier(.2,0,0,1), top .50s cubic-bezier(.2,0,0,1), width .50s cubic-bezier(.2,0,0,1), height .50s cubic-bezier(.2,0,0,1), border-radius .50s cubic-bezier(.2,0,0,1), box-shadow .30s ease';
   card.style.transition = trans;
   card.style.left = '0';
@@ -582,16 +541,12 @@ async function expandCardToFullscreen(card){
   card.style.borderRadius = '0';
   card.style.boxShadow = 'none';
 
-  // 等尺寸動畫完成
-  await onTransitionEnd(card, 'height');
+  await onTransitionEnd(card, 'height', 1200);
 }
 
-
-/* ===== 送出（全螢幕成功動畫版） ===== */
 responseForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
 
-  // 至少勾一個
   const t=$('tue').checked, h=$('thu').checked, f=$('fri').checked;
   if(!t && !h && !f){ alert('請至少勾選一天（週二／週四／週五）'); return; }
 
@@ -602,16 +557,13 @@ responseForm.addEventListener('submit', async (e)=>{
     const res = await fetch(scriptURL, { method:'POST', body: fd });
     if(!res.ok) throw new Error('network');
 
-    // STEP 1：白框內所有東西淡出
     document.querySelector('.form-shell').classList.add('fade-out');
-    document.getElementById('noteText').classList.add('fade-out');
-    await new Promise(r=>setTimeout(r, 260)); // 等淡出
+    noteText.classList.add('fade-out');
+    await new Promise(r=>setTimeout(r, 260));
 
-    // STEP 2：白框擴張填滿整個頁面（使整頁變白）
     root.classList.add('fullscreen-mode');
     await expandCardToFullscreen(formCard);
 
-    // STEP 3：顯示全畫面成功層
     fullDone.classList.add('show');
     requestAnimationFrame(()=> fullDoneImg.classList.add('show'));
 
