@@ -3,162 +3,101 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>仁和國中管樂團｜填寫狀況（Latest）</title>
+  <title>填寫狀況（Latest）｜仁和國中管樂團</title>
   <meta name="description" content="仁和國中管樂團學生表單填寫狀況（Latest 工作表）即時檢視頁。" />
   <meta name="robots" content="noindex" />
   <style>
-    /* CSS Reset (minimal) */
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #0b1020; /* 深色背景，讓白色列表更清楚 */
-      color: #e6e8ef;
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Helvetica Neue", Arial, "Hiragino Sans", sans-serif;
-    }
 
-    .wrap {
-      display: flex;
-      flex-direction: column;
-      min-height: 100dvh; /* 更準確的視窗高度（行動裝置） */
-    }
+:root{
+  --bg:#0f1325;
+  --card:#ffffff;
+  --ink:#111827;
+  --ink-soft:#374151;
+  --brand:#1b84f2;
+  --brand-2:#8b5cf6;
+  --muted:#6b7280;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Helvetica Neue",Arial,"Hiragino Sans",sans-serif;background:linear-gradient(180deg, #101739 0%, #0f1325 100%);color:#111827}
+.container{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{
+  width:min(1100px, 92vw);
+  background:var(--card);
+  color:var(--ink);
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25), 0 1px 0 rgba(255,255,255,.08) inset;
+  overflow:hidden;
+  border:1px solid rgba(17,24,39,.06);
+}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;
+  background:linear-gradient(90deg, rgba(27,132,242,.12), rgba(139,92,246,.12));
+  border-bottom:1px solid rgba(17,24,39,.08);
+}
+.title{font-weight:800;letter-spacing:.02em;font-size:16px}
+.actions{display:flex;align-items:center;gap:8px}
+.btn{
+  appearance:none;border:1px solid rgba(17,24,39,.12);
+  background:#fff;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer;
+  box-shadow:0 1px 0 rgba(17,24,39,.04),0 8px 20px rgba(27,132,242,.08);
+}
+.btn:hover{box-shadow:0 1px 0 rgba(17,24,39,.04),0 10px 26px rgba(27,132,242,.16)}
+.btn:active{transform:translateY(1px)}
+.hint{font-size:12px;color:var(--muted)}
+.frame{position:relative;height: min(1200px, calc(100dvh - 64px - 48px));}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+@media (max-width:480px){
+  .container{padding:10px}
+  .title{font-size:14px}
+  .btn{padding:6px 10px;font-size:13px}
+  .card{width:100%} /* 滿寬起始 */
+}
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: saturate(120%) blur(6px);
-      background: rgba(12, 17, 35, 0.8);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 14px;
-    }
-
-    .title {
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      font-size: clamp(14px, 2.6vw, 18px);
-      line-height: 1.2;
-    }
-
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      appearance: none;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.06);
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    button:hover { background: rgba(255,255,255,0.12); }
-    button:active { transform: translateY(1px); }
-
-    .hint {
-      opacity: 0.75;
-      font-size: 12px;
-      line-height: 1.3;
-    }
-
-    /* iframe 容器填滿 header 下方的剩餘高度 */
-    .frameArea {
-      position: relative;
-      flex: 1 1 auto;
-      min-height: 0; /* 讓子元素得以填滿 flex 剩餘高 */
-    }
-
-    .frameArea iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-      background: #fff; /* 避免載入時出現透明底色 */
-    }
-
-    /* 小尺寸裝置上的視覺調整 */
-    @media (max-width: 480px) {
-      .bar { padding: 8px 10px; }
-      .title { font-size: 14px; }
-      button { padding: 6px 10px; font-size: 13px; }
-    }
-  </style>
+/* 保持與 A/B 頁視覺一致，行動端起始滿寬，允許縮放（已不禁止 user-scalable）。 */
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="bar">
+  <div class="container">
+    <section class="card" role="region" aria-label="Latest 工作表">
+      <div class="card-header">
         <div class="title">仁和國中管樂團｜填寫狀況（Latest）</div>
         <div class="actions">
-          <button id="btnReload" type="button" aria-label="重新整理">重新整理</button>
-          <div class="hint" id="lastUpdate">—</div>
+          <button id="btnReload" class="btn" type="button" aria-label="重新整理">重新整理</button>
+          <div id="lastUpdate" class="hint">—</div>
         </div>
       </div>
-    </header>
-
-    <div class="frameArea">
-      <iframe
-        id="sheetFrame"
-        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQn22zMVTRxiCraZl8FKALyq7oSG-NH38hnZb7EflMctiL3q8MWf0UxN7JbNgnmRTgARkyX3BJsroP3/pubhtml?gid=1125131152&amp;single=true&amp;widget=true&amp;headers=false"
-        referrerpolicy="no-referrer-when-downgrade"
-        loading="lazy"
-        title="Latest 工作表即時檢視">
-      </iframe>
-    </div>
+      <div class="frame">
+        <iframe
+          id="sheetFrame"
+          src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQn22zMVTRxiCraZl8FKALyq7oSG-NH38hnZb7EflMctiL3q8MWf0UxN7JbNgnmRTgARkyX3BJsroP3/pubhtml?gid=1125131152&amp;single=true&amp;widget=true&amp;headers=false"
+          referrerpolicy="no-referrer-when-downgrade"
+          loading="lazy"
+          title="Latest 工作表即時檢視"></iframe>
+      </div>
+    </section>
   </div>
-
   <script>
-    (function () {
-      const frame = document.getElementById('sheetFrame');
-      const btn = document.getElementById('btnReload');
-      const lastUpdate = document.getElementById('lastUpdate');
+  (function () {
+    const frame = document.getElementById('sheetFrame');
+    const btn = document.getElementById('btnReload');
+    const lastUpdate = document.getElementById('lastUpdate');
 
-      function stamp() {
-        const now = new Date();
-        const pad = (n) => String(n).padStart(2, '0');
-        // 以使用者本地時區呈現（你在台灣）
-        return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      }
-
-      function updateStamp() {
-        lastUpdate.textContent = `更新於 ${stamp()}`;
-      }
-
-      function hardReloadIframe() {
-        // 加上版本參數避免快取（特別是行動裝置）
-        const base = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQn22zMVTRxiCraZl8FKALyq7oSG-NH38hnZb7EflMctiL3q8MWf0UxN7JbNgnmRTgARkyX3BJsroP3/pubhtml?gid=1125131152&single=true&widget=true&headers=false";
-        const ver = `v=${Date.now()}`;
-        const url = `${base}&${ver}`;
-        frame.setAttribute('src', url);
-        updateStamp();
-      }
-
-      // 事件：手動刷新
-      btn.addEventListener('click', hardReloadIframe);
-
-      // 預設載入完成後先打一次時間戳
-      frame.addEventListener('load', updateStamp);
-
-      // 每 5 分鐘自動刷新一次（可自行調整，單位：毫秒）
-      const FIVE_MIN = 5 * 60 * 1000;
-      setInterval(hardReloadIframe, FIVE_MIN);
-    })();
+    function stamp() {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    }
+    function updateStamp() { lastUpdate.textContent = `更新於 ${stamp()}`; }
+    function hardReloadIframe() {
+      const base = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQn22zMVTRxiCraZl8FKALyq7oSG-NH38hnZb7EflMctiL3q8MWf0UxN7JbNgnmRTgARkyX3BJsroP3/pubhtml?gid=1125131152&single=true&widget=true&headers=false";
+      frame.src = base + "&v=" + Date.now();
+      updateStamp();
+    }
+    btn.addEventListener('click', hardReloadIframe);
+    frame.addEventListener('load', updateStamp);
+    setInterval(hardReloadIframe, 5 * 60 * 1000);
+  })();
   </script>
 </body>
 </html>
